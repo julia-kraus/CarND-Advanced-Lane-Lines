@@ -14,4 +14,10 @@ def load_image(path, to_rgb=True):
     """
     img = cv2.imread(path)
     return img if not to_rgb else cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+def show_image_list():
+    pass
+
+def show_images_before_after(before_list, after_list):
+    pass
     
