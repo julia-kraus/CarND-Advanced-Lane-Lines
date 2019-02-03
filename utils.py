@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 def to_grayscale(img):
     """returns the image converted to grayscale. Pay attention to how an image was loaded. If it was loaded using
@@ -30,12 +31,17 @@ def show_img_lists(image_lists, image_names=None, title=None, figsize=(15, 15)):
     
     for i in range(rows):
         for j in range(cols):
+            # if there is more than one image in the list --> more than one row
             if rows >=2:
                 ax = axes[i, j]
-            else: ax = axes[j]
+                image = image_lists[i][j]
+                image_name = image_names[i][j]
+            
+            else: 
+                ax = axes[j]
+                image = image_lists[j]
+                image_name=image_names[j]
                 
-            image = image_lists[i][j]
-            image_name = image_names[i][j]
             
             # if image has less than three color channels
             if image.shape[-1] < 3:
