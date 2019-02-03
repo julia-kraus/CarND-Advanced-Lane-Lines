@@ -13,11 +13,41 @@ def load_image(path, to_rgb=True):
     When to_rgb is set to False the image return is in BGR. Returns by default a RGB image.
     """
     img = cv2.imread(path)
-    return img if not to_rgb else cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-def show_image_list():
-    pass
-
-def show_images_before_after(before_list, after_list):
-    pass
     
+    if not to_rgb:
+        return img
+    else:
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+
+def show_img_lists(image_lists, image_names=None, title=None, figsize=(15, 15)):
+    """Helper function that shows several lists of images alongside each other"""
+    rows = len(image_lists[0])
+    cols = len(image_lists)
+    cmap = None
+    
+    fig, axes = plt.subplots(rows, cols, figsize=figsize)
+    
+    for i in range(rows):
+        for j in range(cols):
+            if rows >=2:
+                ax = axes[i, j]
+            else: ax = axes[j]
+                
+            image = image_lists[i][j]
+            image_name = image_names[i][j]
+            
+            # if image has less than three color channels
+            if image.shape[-1] < 3:
+                cmap="gray"
+                image = np.reshape(image, (image.shape[0], image.shape[1]))
+                
+            ax.imshow(image, cmap=cmap)
+            ax.set_title(image_name)
+            
+    fig.suptitle(title, fontsize=10, y=1)
+    fig.tight_layout()
+    plt.show()
+    
+    return
+            
