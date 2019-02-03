@@ -29,13 +29,15 @@ def show_img_lists(image_lists, image_names=None, title=None, figsize=(15, 15)):
     
     fig, axes = plt.subplots(rows, cols, figsize=figsize)
     
-    for i in range(rows):
-        for j in range(cols):
+    for j in range(cols):
+        print('We are in column %d' %j)
+        for i in range(rows):
+            print('We are in row %d' %i)
             # if there is more than one image in the list --> more than one row
             if rows >=2:
                 ax = axes[i, j]
-                image = image_lists[i][j]
-                image_name = image_names[i][j]
+                image = image_lists[j][i]
+                image_name = image_names[j][i]
             
             else: 
                 ax = axes[j]
