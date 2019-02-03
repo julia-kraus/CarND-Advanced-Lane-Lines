@@ -21,7 +21,7 @@ def load_image(path, to_rgb=True):
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
-def show_img_lists(image_lists, image_names=None, title=None, figsize=(15, 15)):
+def show_img_lists(image_lists, image_names=None, title=None, figsize=(20, 20), ticks=False):
     """Helper function that shows several lists of images alongside each other"""
     rows = len(image_lists[0])
     cols = len(image_lists)
@@ -30,9 +30,7 @@ def show_img_lists(image_lists, image_names=None, title=None, figsize=(15, 15)):
     fig, axes = plt.subplots(rows, cols, figsize=figsize)
     
     for j in range(cols):
-        print('We are in column %d' %j)
         for i in range(rows):
-            print('We are in row %d' %i)
             # if there is more than one image in the list --> more than one row
             if rows >=2:
                 ax = axes[i, j]
@@ -49,6 +47,9 @@ def show_img_lists(image_lists, image_names=None, title=None, figsize=(15, 15)):
             if image.shape[-1] < 3:
                 cmap="gray"
                 image = np.reshape(image, (image.shape[0], image.shape[1]))
+                
+            if not ticks:
+                ax.axis("off")
                 
             ax.imshow(image, cmap=cmap)
             ax.set_title(image_name)
