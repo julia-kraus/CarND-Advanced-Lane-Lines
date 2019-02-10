@@ -49,7 +49,7 @@ def show_img_lists(image_lists, image_names=None, title=None, figsize=(20, 20), 
                 
             
             # if image has less than three color channels
-            if image.shape[-1] < 3:
+            if image.shape[-1] < 3 or len(image.shape)<3:
                 cmap="gray"
                 image = np.reshape(image, (image.shape[0], image.shape[1]))
                 
