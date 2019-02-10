@@ -8,7 +8,7 @@ def grayscale(img):
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     return gray
 
-def hsl(img):
+def hls(img):
     """Returns the image converted to HSL colorspace."""
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     return hls
