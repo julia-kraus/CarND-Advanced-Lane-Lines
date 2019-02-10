@@ -2,11 +2,16 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def to_grayscale(img):
+def grayscale(img):
     """returns the image converted to grayscale. Pay attention to how an image was loaded. If it was loaded using
     matplotlib.image, the image is in RGB, if it was loaded with cv2.imread, it is in BGR."""
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     return gray
+
+def hsl(img):
+    """Returns the image converted to HSL colorspace."""
+    hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+    return hls
 
 def load_image(path, to_rgb=True):
     """
