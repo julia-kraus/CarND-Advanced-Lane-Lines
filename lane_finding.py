@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import preprocessing
 
 
 class Line():
@@ -210,8 +211,8 @@ class LaneFinder():
 
     def __init__(self):
         # Lines are only once initialized per list of images -> .detected values remain
-        left_lane = Line()
-        right_lane = Line()
+        self.left_lane = Line()
+        self.right_lane = Line()
 
     def get_result(self, image, warped, left_fitx, right_fitx, ploty, Minv, curvature):
         # Create an image to draw the lines on
@@ -238,7 +239,7 @@ class LaneFinder():
         cv2.putText(result, text, (400, 100), font, 1, (255, 255, 255), 2)
         # Find the position of the car
         pts = np.argwhere(newwarp[:, :, 1])
-        position = LaneFinder.get_position(pts)
+        position = LaneFinder.get_car_position(self, pts)
         if position < 0:
             text = "Vehicle is {:.2f} m left of center".format(-position)
         else:
@@ -250,12 +251,12 @@ class LaneFinder():
 
     def find_lanes(self, image):
         """Finds lanes and lane curvatures in a single images and plots them."""
-        binary_warped, M, Minv = preprocess_image(image)
+        binary_warped, M, Minv = preprocessing.preprocess_image(image)
 
         # find lane pixels
-        if (self.left_lane.detected and self.right_lane.detected):
-            ###TODO: ergänze Paremeter best fit or WHAT?
-            left_fitx, right_fitx, ploty, out_img = search_lane_from_prior(binary_warped,
+        if self.left_lane.detected and self.right_lane.detected:
+            ###TO-DO: ergänze Parameter best fit or WHAT?
+            left_fitx, right_fitx, ploty = search_lane_from_prior(binary_warped,
                                                                            self.left_lane.best_fit,
                                                                            self.right_lane.best_fit)
         else:
