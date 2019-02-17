@@ -113,33 +113,39 @@ def undistort_img(img, mtx, dist):
     return undist
 
 
-def cal_undistort(img, imgpoints, objpoints):
+def cal_undistort(img, image_points, object_points):
     """Alternative function for undistorting that calibrates mtx and dist every time anew."""
     # Use cv2.calibrateCamera() and cv2.undistort()
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
     undist = cv2.undistort(img, mtx, dist, None, mtx)
     return undist
 
 
 ##############################################################################################
-# Image Preprocessing for Lane Line Pixel Detection: Thresholding and Perspective Transform  #
+# Image Pre-processing for Lane Line Pixel Detection: Thresholding and Perspective Transform #
 ##############################################################################################
 
-def to_grayscale():
-    pass
+def to_grayscale(img):
+    """returns the image converted to grayscale. Pay attention to how an image was loaded. If it was loaded using
+    matplotlib.image, the image is in RGB, if it was loaded with cv2.imread, it is in BGR."""
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    return gray
 
 
-def to_hls():
-    pass
+def to_hls(img):
+    """Returns the image converted to HSL colorspace."""
+    hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+    return hls
 
 
 def color_threshold(image, channel, low=0, high=255):
     """Applies color thresholding to an image."""
-    # image is in grayscale
-    if (image.shape[-1] < 3 or len(image.shape) < 3):
+    # image is in gray scale
+    if image.shape[-1] < 3 or len(image.shape) < 3:
         img_channel = image
-    img_channel = image[:, :, channel]
+    else:
+        img_channel = image[:, :, channel]
     binary = np.zeros_like(img_channel)
     binary[(img_channel > low) & (img_channel <= high)] = 1
     return binary
@@ -148,12 +154,12 @@ def color_threshold(image, channel, low=0, high=255):
 def abs_sobel_thresh(img, orient='x', thresh_min=0, thresh_max=255, ksize=5):
     """Applies a sobel operator to the image and filters image pixels based on their absolute sobel value."""
 
-    # 1) Convert to grayscale
+    # 1) Convert to gray scale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # 2) Take the derivative in x or y given orient = 'x' or 'y'
     if orient == 'x':
         sobel = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize)
-    elif orient == 'y':
+    else:
         sobel = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize)
     # 3) Take the absolute value of the derivative or gradient
     abs_sobel = np.absolute(sobel)
