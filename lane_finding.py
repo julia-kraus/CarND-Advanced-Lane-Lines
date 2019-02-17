@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 
 class Line():
@@ -70,16 +71,23 @@ def search_lane_from_scratch(binary_warped):
         # Identify window boundaries in x and y (and right and left)
         win_y_low = binary_warped.shape[0] - (window + 1) * window_height
         win_y_high = binary_warped.shape[0] - window * window_height
+
         # Find the four below boundaries of the window ###
         win_xleft_low = leftx_current - margin  # Update this
         win_xleft_high = leftx_current + margin  # Update this
         win_xright_low = rightx_current - margin  # Update this
         win_xright_high = rightx_current + margin  # Update this
 
+        # Draw the windows on the visualization image
+        cv2.rectangle(out_img, (win_xleft_low, win_y_low),
+                      (win_xleft_high, win_y_high), (0, 255, 0), 2)
+        cv2.rectangle(out_img, (win_xright_low, win_y_low),
+                      (win_xright_high, win_y_high), (0, 255, 0), 2)
+
         # Identify the nonzero pixels in x and y within the window ###
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) &
                           (nonzerox >= win_xleft_low) & (nonzerox < win_xleft_high)).nonzero()[0]
-        good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & \
+        good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) &
                            (nonzerox >= win_xright_low) & (nonzerox < win_xright_high)).nonzero()[0]
 
         # Append these indices to the lists
@@ -105,12 +113,14 @@ def search_lane_from_scratch(binary_warped):
     # fits polynomial to the detected lane line pixels
     left_fitx, right_fitx, ploty = fit_polynomial(binary_warped.shape, leftx, lefty, rightx, righty)
 
-    ## Visualization ##
+    # Visualization
     # Colors in the left and right lane region lane line pixels
     out_img[lefty, leftx] = [255, 0, 0]
     out_img[righty, rightx] = [0, 0, 255]
 
     # Plots the left and right polynomials on the lane lines
+    # better: zip left_fitx and ploty and use opencv.polyLines. This approach doesn't work if there are multiple
+    # images in a row.!
     plt.plot(left_fitx, ploty, color='yellow')
     plt.plot(right_fitx, ploty, color='yellow')
 
@@ -120,7 +130,7 @@ def search_lane_from_scratch(binary_warped):
 def search_lane_from_prior(binary_warped, left_fit, right_fit):
     """Search lanes by only searching a region around a previous polynomial fit"""
     # HYPERPARAMETER
-    # Choose the width of the margin around the previous polynomial to search
+    # Width of the margin around the previous polynomial to search
     margin = 100
 
     # Grab activated pixels
@@ -155,16 +165,16 @@ def fit_polynomial(img_shape, leftx, lefty, rightx, righty):
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     # Generate x and y values for plotting
-    ploty = np.linspace(0, img_shape[0]-1, img_shape[0])
+    ploty = np.linspace(0, img_shape[0] - 1, img_shape[0])
     # Calc both polynomials using ploty, left_fit and right_fit ###\n",
     try:
-        left_fitx = left_fit[0] * ploty**2 + left_fit[1] * ploty + left_fit[2]
-        right_fitx = right_fit[0] * ploty**2 + right_fit[1] * ploty + right_fit[2]
+        left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
+        right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
     except TypeError:
         # Avoids an error if `left` and `right_fit` are still none or incorrect\n",
         print('The function failed to fit a line!')
-        left_fitx = 1*ploty**2 + 1*ploty
-        right_fitx = 1*ploty**2 + 1*ploty
+        left_fitx = 1 * ploty ** 2 + 1 * ploty
+        right_fitx = 1 * ploty ** 2 + 1 * ploty
     return left_fitx, right_fitx, ploty
 
 
