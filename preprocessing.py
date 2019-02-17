@@ -77,12 +77,12 @@ def get_image_object_points(img_paths, nx, ny):
     for img_path in img_paths:
         # read in image
         img = load_image(img_path)
-        # convert image to grayscale
+        # convert image to gray scale
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
         ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
 
-        if ret == True:
+        if ret:
             img_points.append(corners)
             obj_points.append(obj_pts)
 
@@ -98,13 +98,13 @@ def calibrate_camera(img, cal_img_path, nx, ny):
     return mtx, dist
 
 
-def save_camera_coefficients(image_points, object_points, mtx, dst):
+def save_camera_coefficients(image_points, object_points, mtx, dist):
     with open('calibration_coefficients/mtx_dst', 'wb') as f:
-        pickle.dump('mtx', f)
-        pickle.dump('dist', f)
+        pickle.dump(mtx, f)
+        pickle.dump(dist, f)
     with open('calibration_coefficients/img_obj_pts', 'wb') as f:
-        pickle.dump('image_points', f)
-        pickle.dump('object_points', f)
+        pickle.dump(image_points, f)
+        pickle.dump(object_points, f)
 
 
 def undistort_img(img, mtx, dist):
@@ -151,9 +151,9 @@ def abs_sobel_thresh(img, orient='x', thresh_min=0, thresh_max=255, ksize=5):
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # 2) Take the derivative in x or y given orient = 'x' or 'y'
-    if (orient == 'x'):
+    if orient == 'x':
         sobel = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize)
-    elif (orient == 'y'):
+    elif orient == 'y':
         sobel = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize)
     # 3) Take the absolute value of the derivative or gradient
     abs_sobel = np.absolute(sobel)
@@ -186,7 +186,7 @@ def color_gradient_threshold(img_undist, plot=False):
     combined_binary = np.zeros_like(sobel_x_mask)
     combined_binary[(color_mask == 1) | (sobel_x_mask == 1) | (sobel_y_mask == 1)] = 1
 
-    if plot == False:
+    if not plot:
         return combined_binary
     else:
         # Stack each channel to view their individual contributions in green and blue respectively
@@ -218,7 +218,7 @@ def get_perspective_transform(img):
 
 
 # mtx and dist have been calculated above
-def preprocess_image(img):
+def preprocess_image(img, mtx, dist):
     """Applies all image preprocessing steps before lane detection."""
     # undistort image with the previously calculated `mtx` and `dst`
     undist_img = undistort_img(img, mtx=mtx, dist=dist)
