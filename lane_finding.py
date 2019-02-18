@@ -17,6 +17,8 @@ class Line:
         self.detected = False
         # x values of the last n fits of the line
         self.recent_xfitted = []
+        # last n polynomial fits of the line
+        self.recent_fitted = []
         # average x values of the fitted line over the last n iterations
         self.bestx = None
         # polynomial coefficients averaged over the last n iterations
@@ -41,16 +43,13 @@ def search_lane_from_scratch(binary_warped):
     # Take a histogram of the bottom half of the image
     histogram = np.sum(binary_warped[binary_warped.shape[0] // 2:, :], axis=0)
 
-    # Create an output image to draw on and visualize the result
-    out_img = np.dstack((binary_warped, binary_warped, binary_warped))
-
     # Find the peak of the left and right halves of the histogram
     # These will be the starting point for the left and right lines
     midpoint = np.int(histogram.shape[0] // 2)
     leftx_base = np.argmax(histogram[:midpoint])
     rightx_base = np.argmax(histogram[midpoint:]) + midpoint
 
-    # HYPERPARAMETERS
+    # HYPER PARAMETERS
     # Choose the number of sliding windows
     n_windows = 9
     # Set the width of the windows +/- margin
@@ -58,7 +57,7 @@ def search_lane_from_scratch(binary_warped):
     # Set minimum number of pixels found to recenter window
     min_pix = 50
 
-    # Set height of windows - based on nwindows above and image shape
+    # Set height of windows - based on n_windows above and image shape
     window_height = np.int(binary_warped.shape[0] // n_windows)
     # Identify the x and y positions of all nonzero pixels in the image
     nonzero = binary_warped.nonzero()
@@ -83,12 +82,6 @@ def search_lane_from_scratch(binary_warped):
         win_xleft_high = leftx_current + margin  # Update this
         win_xright_low = rightx_current - margin  # Update this
         win_xright_high = rightx_current + margin  # Update this
-
-        # Draw the windows on the visualization image
-        cv2.rectangle(out_img, (win_xleft_low, win_y_low),
-                      (win_xleft_high, win_y_high), (0, 255, 0), 2)
-        cv2.rectangle(out_img, (win_xright_low, win_y_low),
-                      (win_xright_high, win_y_high), (0, 255, 0), 2)
 
         # Identify the nonzero pixels in x and y within the window ###
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) &
@@ -119,19 +112,6 @@ def search_lane_from_scratch(binary_warped):
     # fits polynomial to the detected lane line pixels
     left_fitx, right_fitx, ploty, left_fit, right_fit = fit_polynomial(binary_warped.shape, leftx, lefty, rightx,
                                                                        righty)
-
-    # Visualization
-    # Colors in the left and right lane region lane line pixels
-    out_img[lefty, leftx] = [255, 0, 0]
-    out_img[righty, rightx] = [0, 0, 255]
-
-    # Plots the left and right polynomials on the lane lines
-    # better: zip left_fitx and ploty and use opencv.polyLines. This approach doesn't work if there are multiple
-    # images in a row.!
-    cv2.polylines(out_img, list(zip(left_fitx, ploty)), color='yellow')
-    cv2.polylines(out_img, list(zip(right_fitx, ploty)), color='yellow')
-    # plt.plot(left_fitx, ploty, color='yellow')
-    # plt.plot(right_fitx, ploty, color='yellow')
 
     return left_fitx, right_fitx, ploty, left_fit, right_fit
 
@@ -222,7 +202,7 @@ class LaneFinder:
         self.left_lane = Line()
         self.right_lane = Line()
 
-    def get_result(self, image, warped, left_fitx, right_fitx, ploty, Minv, curvature):
+    def get_result(self, undist, warped, left_fitx, right_fitx, ploty, Minv):
         # Create an image to draw the lines on
         warp_zero = np.zeros_like(warped).astype(np.uint8)
         color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
@@ -236,14 +216,15 @@ class LaneFinder:
         cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
 
         # Warp the blank back to original image space using inverse perspective matrix (Minv)
-        newwarp = cv2.warpPerspective(color_warp, Minv, (image.shape[1], image.shape[0]))
+        newwarp = cv2.warpPerspective(color_warp, Minv, (undist.shape[1], undist.shape[0]))
         # Combine the result with the original image
         result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
 
         # Ab hier nochmal neu        
         # Put text on an image
         font = cv2.FONT_HERSHEY_SIMPLEX
-        text = "Radius of Curvature: {} m".format(int(curvature))
+        # take radius of left line as curvature
+        text = "Radius of Curvature: {} m".format(int(self.left_lane.radius_of_curvature))
         cv2.putText(result, text, (400, 100), font, 1, (255, 255, 255), 2)
         # Find the position of the car
         pts = np.argwhere(newwarp[:, :, 1])
@@ -272,14 +253,15 @@ class LaneFinder:
             left_fitx, right_fitx, ploty, left_fit, right_fit = search_lane_from_scratch(binary_warped)
 
         # find curvatures 
-        left_curve_radius = get_curvature_real(left_fitx, ploty)
-        right_curve_radius = get_curvature_real(right_fitx, ploty)
+        self.left_lane.radius_of_curvature = get_curvature_real(left_fitx, ploty)
+        self.right_lane.radius_of_curvature = get_curvature_real(right_fitx, ploty)
 
         # Does sanity check really need to output something or is it enought that the class variables are set
-        left_fitx, right_fitx = self.sanity_check()
+        left_fitx = self.sanity_check(self.left_lane, left_fitx, left_fit)
+        right_fitx = self.sanity_check(self.right_lane, right_fitx, right_fit)
 
         # left_curve_radius is enough since both curve radii should be about the same
-        return self.get_result(image, binary_warped, left_fitx, right_fitx, ploty, Minv, left_curve_radius)
+        return self.get_result(image, binary_warped, left_fitx, right_fitx, ploty, Minv)
 
     def get_car_position(self, pts, image_shape=(720, 1280)):
         """Calculates car position from the center of the lane. Returns car's distance from the center of the road in 
@@ -297,25 +279,26 @@ class LaneFinder:
         return dist_in_m
 
     @staticmethod
-    def sanity_check(lane, curverad, fitx, fity):
-        """Performs sanity check for ONE OR BOTH?? LANES"""
+    def sanity_check(lane, fitx, fit):
+        """Performs sanity check for one lane. Later implement also for both: Do radii match for both curves?"""
         # Sanity check for the lane
         lane.current_fit = fit
 
-        if abs(curverad - 2000) / 2000 < 2:
+        # Curve radius makes sense
+        if abs(lane.radius_of_curvature - 2000) / 2000 < 2:
             lane.detected = True
 
             # Keep a running average over 3 frames
-            if len(lane.recent_xfitted) > 5 and lane.recent_xfitted:
+            if len(lane.recent_xfitted) > 3 and lane.recent_xfitted:
                 lane.recent_xfitted.pop()
-                lane.recent_fits.pop()
+                lane.recent_fitted.pop()
 
             lane.recent_xfitted.append(fitx.reshape(1, -1))
-            lane.recent_fits.append(fit.reshape(1, -1))
+            lane.recent_fitted.append(fit.reshape(1, -1))
 
             if len(lane.recent_xfitted) > 1:
                 lane.bestx = np.mean(np.vstack(lane.recent_xfitted), axis=1)
-                lane.best_fit = np.mean(np.vstack(lane.recent_fits), axis=1)
+                lane.best_fit = np.mean(np.vstack(lane.recent_fitted), axis=1)
 
             lane.bestx = fitx
             lane.best_fit = fit
