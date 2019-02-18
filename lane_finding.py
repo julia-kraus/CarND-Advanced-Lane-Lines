@@ -194,7 +194,7 @@ def get_curvature_real(fitx, ploty):
     xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
 
     # fit new polynomial to x, y in the real world space
-    fit_cr = np.polyfit(y * ym_per_pix, fitx * xm_per_pix, 2)
+    fit_cr = np.polyfit(ploty * ym_per_pix, fitx * xm_per_pix, 2)
 
     # Define y-value where we want radius of curvature
     # We'll choose the maximum y-value, corresponding to the bottom of the image
@@ -203,7 +203,6 @@ def get_curvature_real(fitx, ploty):
 
     A_l = fit_cr[0]
     B_l = fit_cr[1]
-    C_l = fit_cr[2]
 
     # Radius of curvature in meters
     curverad = ((1 + (2 * A_l * y_eval_meters + B_l) ** 2) ** 1.5) / (abs(2 * A_l))
