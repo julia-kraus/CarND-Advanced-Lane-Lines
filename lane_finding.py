@@ -117,7 +117,8 @@ def search_lane_from_scratch(binary_warped):
     righty = nonzeroy[right_lane_inds]
 
     # fits polynomial to the detected lane line pixels
-    left_fitx, right_fitx, ploty = fit_polynomial(binary_warped.shape, leftx, lefty, rightx, righty)
+    left_fitx, right_fitx, ploty, left_fit, right_fit = fit_polynomial(binary_warped.shape, leftx, lefty, rightx,
+                                                                       righty)
 
     # Visualization
     # Colors in the left and right lane region lane line pixels
@@ -127,10 +128,12 @@ def search_lane_from_scratch(binary_warped):
     # Plots the left and right polynomials on the lane lines
     # better: zip left_fitx and ploty and use opencv.polyLines. This approach doesn't work if there are multiple
     # images in a row.!
-    plt.plot(left_fitx, ploty, color='yellow')
-    plt.plot(right_fitx, ploty, color='yellow')
+    cv2.polylines(out_img, list(zip(left_fitx, ploty)), color='yellow')
+    cv2.polylines(out_img, list(zip(right_fitx, ploty)), color='yellow')
+    # plt.plot(left_fitx, ploty, color='yellow')
+    # plt.plot(right_fitx, ploty, color='yellow')
 
-    return left_fitx, right_fitx, ploty, out_img
+    return left_fitx, right_fitx, ploty, left_fit, right_fit
 
 
 def search_lane_from_prior(binary_warped, left_fit, right_fit):
@@ -160,10 +163,11 @@ def search_lane_from_prior(binary_warped, left_fit, right_fit):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
 
-    # Fit new polynomials THIS FUNCTION DOES NOT EXIST ANYMORE!!!!
-    left_fitx, right_fitx, ploty = fit_polynomial(binary_warped.shape, leftx, lefty, rightx, righty)
+    # Fit new polynomials
+    left_fitx, right_fitx, ploty, left_fit, right_fit = fit_polynomial(binary_warped.shape, leftx, lefty, rightx,
+                                                                       righty)
 
-    return left_fitx, right_fitx, ploty
+    return left_fitx, right_fitx, ploty, left_fit, right_fit
 
 
 def fit_polynomial(img_shape, leftx, lefty, rightx, righty):
@@ -181,7 +185,7 @@ def fit_polynomial(img_shape, leftx, lefty, rightx, righty):
         print('The function failed to fit a line!')
         left_fitx = 1 * ploty ** 2 + 1 * ploty
         right_fitx = 1 * ploty ** 2 + 1 * ploty
-    return left_fitx, right_fitx, ploty
+    return left_fitx, right_fitx, ploty, left_fit, right_fit
 
 
 # this function MIGHT NOT BE not completely right yet. We need to figure out how to use ym_per_pix and xm_per_pix
@@ -259,12 +263,13 @@ class LaneFinder:
 
         # find lane pixels
         if self.left_lane.detected and self.right_lane.detected:
-            ###TO-DO: ergänze Parameter best fit or WHAT?
-            left_fitx, right_fitx, ploty = search_lane_from_prior(binary_warped,
-                                                                           self.left_lane.best_fit,
-                                                                           self.right_lane.best_fit)
+            # Search from prior
+            left_fitx, right_fitx, ploty, left_fit, right_fit = search_lane_from_prior(binary_warped,
+                                                                  self.left_lane.best_fit,
+                                                                  self.right_lane.best_fit)
         else:
-            left_fitx, right_fitx, ploty, out_img = search_lane_from_scratch(binary_warped)
+            # Search from scratch
+            left_fitx, right_fitx, ploty, left_fit, right_fit = search_lane_from_scratch(binary_warped)
 
         # find curvatures 
         left_curve_radius = get_curvature_real(left_fitx, ploty)
