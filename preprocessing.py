@@ -99,12 +99,10 @@ def calibrate_camera(img, cal_img_path, nx, ny):
 
 
 def save_camera_coefficients(image_points, object_points, mtx, dist):
-    with open('calibration_coefficients/mtx_dst', 'wb') as f:
+    with open('calibration_coefficients/mtx.p', 'wb') as f:
         pickle.dump(mtx, f)
-        pickle.dump(dist, f)
-    with open('calibration_coefficients/img_obj_pts', 'wb') as f:
-        pickle.dump(image_points, f)
-        pickle.dump(object_points, f)
+    with open('calibration_coefficients/dist.p', 'wb') as g:
+        pickle.dump(dist, g)
 
 
 def undistort_img(img, mtx, dist):

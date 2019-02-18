@@ -2,9 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import preprocessing
+import pickle
+
+# Load the camera calibration matrix which were produced in the notebook solution.ipynb
+MTX = pickle.load(open('./calibration_coefficients/mtx.p', 'rb'))
+DIST = pickle.load(open('./calibration_coefficients/dist.p', 'rb'))
 
 
-class Line():
+class Line:
     """Class keeping track of a lane and all the lanes in the previous frame"""
 
     def __init__(self):
@@ -206,7 +211,7 @@ def get_curvature_real(fitx, ploty):
     return curverad
 
 
-class LaneFinder():
+class LaneFinder:
     """Class for lane finding. """
 
     def __init__(self):
@@ -251,7 +256,7 @@ class LaneFinder():
 
     def find_lanes(self, image):
         """Finds lanes and lane curvatures in a single images and plots them."""
-        binary_warped, M, Minv = preprocessing.preprocess_image(image)
+        binary_warped, M, Minv = preprocessing.preprocess_image(image, mtx=MTX, dist=DIST)
 
         # find lane pixels
         if self.left_lane.detected and self.right_lane.detected:
@@ -287,7 +292,8 @@ class LaneFinder():
         dist_in_m = (position - center) * xm_per_pix
         return dist_in_m
 
-    def sanity_check(self, lane, curverad, fitx, fit):
+    @staticmethod
+    def sanity_check(lane, curverad, fitx, fit):
         # Sanity check for the lane
         lane.current_fit = fit
 
