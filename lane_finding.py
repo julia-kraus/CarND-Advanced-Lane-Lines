@@ -297,7 +297,8 @@ class LaneFinder:
         return dist_in_m
 
     @staticmethod
-    def sanity_check(lane, curverad, fitx, fit):
+    def sanity_check(lane, curverad, fitx, fity):
+        """Performs sanity check for ONE OR BOTH?? LANES"""
         # Sanity check for the lane
         lane.current_fit = fit
 
