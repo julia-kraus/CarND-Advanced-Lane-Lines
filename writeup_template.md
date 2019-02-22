@@ -34,9 +34,8 @@ The goals / steps of this project are the following:
 [image18]: ./output_images/histogram.png "Histogram"
 [image18]: ./output_images/result.png "result"
 
-[video1]: ./project_video.mp4 "Video"
+[video1]: ./out_project_video.mp4 "Video"
 
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
@@ -46,7 +45,6 @@ The goals / steps of this project are the following:
 
 ### Camera Calibration
 
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
 The code for this step is contained in the first code cell of the IPython notebook located in "./examples/solution.ipynb" (or in lines 65 through 234 of the file called `preprocessing.py`).  
 
@@ -167,7 +165,7 @@ After we identified the lane line pixels, we need to calculate the road's curvat
 
 I did this in lines # through # in my code in the function `get_curvature_real`.
 
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
+#### 6. Result Sample Image
 
 In the last step, I calculated the car's position from the curvature. Therefore, I determined the leftmost and rightmost lane pixel. The lane center thus is the average over the left and right pixel. 
 Then I calculated how far the lane center is apart from the image center in pixels. Again the same pixel-to-meter conversion as above was applied to obtain the distance in meters. 
@@ -178,7 +176,6 @@ Then I calculated how far the lane center is apart from the image center in pixe
 
 ### Pipeline (video)
 
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a [link to my video result](./project_video.mp4)
 
