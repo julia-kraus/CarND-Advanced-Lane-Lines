@@ -44,7 +44,7 @@ The goals / steps of this project are the following:
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/solution.ipynb" (or in lines # through # of the file called `lane_finding.py`).  
+The code for this step is contained in the first code cell of the IPython notebook located in "./examples/solution.ipynb" (or in lines 65 through 234 of the file called `preprocessing.py`).  
 
 First of all, I load the calibration images that are stored in the ./camera_cal folder. These are 20 images and we can see that there are 9x6 chessboard corners. Then, I apply the opencv function `cv2.get_chessboard_corners` which finds the coordinates of the chessboard corners in the image. The result can be visualized witht he opencv function `cv2.draw_chessboard_corners`Once they are found, we need a function that maps the 2D image points to the "object points", which will be the (x, y, z) coordinates of the chessboard corners in the real world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.
 
@@ -74,7 +74,7 @@ One can see that after the distortion correction, one can see the image more fro
 
 #### 2. Color and Gradient Thresholding
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `preprocessing.py`).  First of all, I considered different color spaces and found that the lines were most clearly visible in the saturation channel of the HLS color space. For a comparison of different channels and color spaces, see `solution.ipynb`. The saturation channel of our example pic can be seen here:
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 125 through 200 in `preprocessing.py`).  First of all, I considered different color spaces and found that the lines were most clearly visible in the saturation channel of the HLS color space. For a comparison of different channels and color spaces, see `solution.ipynb`. The saturation channel of our example pic can be seen here:
 
 ![alt text][image7]
 
@@ -94,7 +94,7 @@ We can see that the lane lines are clearly visible.
 
 #### 3. Perspective Transform.
 
-It is easier to fit a curve to the lane lines, if we can see the street from a bird's eye view. Therefore, we transformed our image into bird's eye view. The code for my perspective transform can be found in lines 1 through 8 in the file `lane_finding.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `get_perspective_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the following test image to determine the source and destination points manually:
+It is easier to fit a curve to the lane lines, if we can see the street from a bird's eye view. Therefore, we transformed our image into bird's eye view. The code for my perspective transform can be found in lines 202 through 222 in the file `preprocessing.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `get_perspective_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the following test image to determine the source and destination points manually:
 
 ![alt text][image13]
 
@@ -132,13 +132,13 @@ Then, I transformed the test images. Here is an example of an unwarped and a war
 After warping:
 ![alt text][image12]
 
-I combined all these preprocessing steps into the `preprocess_image` pipeline function that can be found in `preprocessing.py`. The output of this image pipeline on our test image was:
+I combined all these preprocessing steps into the `preprocess_image` pipeline function that can be found in `preprocessing.py`, lines 223 to 234. The output of this image pipeline on our test image was:
 
 ![alt text][image16]
 
 We can again see that the lane lines are visible. However, there are still many pixels activated that don't belong to the lane line. Our next steps are therefore to identify only the lane line pixels and fit a curve to the lane line.
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+#### 4. Identifiying Lane Line Pixels
 
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
