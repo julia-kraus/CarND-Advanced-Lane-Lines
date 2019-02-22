@@ -32,12 +32,12 @@ The goals / steps of this project are the following:
 [image16]: ./output_images/after_pipeline.png "After Pipeline"
 [image17]: ./output_images/lane_lines.png "Lane Lines Sliding Window Method"
 [image18]: ./output_images/histogram.png "Histogram"
-[image18]: ./output_images/result.png "result"
+[image18]: ./output_images/result_img.png "result"
 
 [video1]: ./out_project_video.mp4 "Video"
 
 
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+### Here I will consider these points individually and describe how I addressed each point in my implementation.  
 
 ---
 
@@ -183,6 +183,4 @@ Here's a [link to my video result](./project_video.mp4)
 
 ### Discussion
 
-#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
-
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+This project was quite challenging because of the many steps it included. One could make the pipeline more robust by applying more gradient and color filters, as I didn't do include the gradient direction in my binary image thresholds, and only used the saturation color channel. Also, more fine tuning on kernel size and hyperparameters could be helpful. 
