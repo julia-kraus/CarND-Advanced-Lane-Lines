@@ -128,7 +128,6 @@ def search_lane_from_scratch(binary_warped):
     left_fitx, right_fitx, ploty, left_fit, right_fit = fit_polynomial(binary_warped.shape, leftx, lefty, rightx,
                                                                        righty)
 
-
     return left_fitx, right_fitx, ploty, left_fit, right_fit
 
 
@@ -342,9 +341,9 @@ class LaneFinder:
         pts = np.argwhere(newwarp[:, :, 1])
         position = LaneFinder.get_car_position(self, pts)
         if position < 0:
-            text = "Vehicle is {:.2f} m left of center".format(-position)
+            text = "The car is {:.2f} m left of center".format(-position)
         else:
-            text = "Vehicle is {:.2f} m right of center".format(position)
+            text = "The car is {:.2f} m right of center".format(position)
 
         cv2.putText(result, text, (400, 150), font, 1, (255, 255, 255), 2)
 
@@ -376,19 +375,16 @@ class LaneFinder:
         return self.get_result(image, binary_warped, left_fitx, right_fitx, ploty, Minv)
 
     def get_car_position(self, pts, image_shape=(720, 1280)):
-        """Calculates car position from the center of the lane. Returns car's distance from the center of the road in 
-        meter"""
+        """Returns car position from the center of the lane in meters"""
 
         position = image_shape[1] / 2
         left = np.min(pts[(pts[:, 1] < position) & (pts[:, 0] > 700)][:, 1])
         right = np.max(pts[(pts[:, 1] > position) & (pts[:, 0] > 700)][:, 1])
         center = (left + right) / 2
 
-        # Define conversions in x and y from pixels space to meters,
-        # assume the lane is about 30 meters long and 3.7 meters wide
         xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
-        dist_in_m = (position - center) * xm_per_pix
-        return dist_in_m
+        dist_meter = (position - center) * xm_per_pix
+        return dist_meter
 
     @staticmethod
     def sanity_check(lane, fitx, fit):
