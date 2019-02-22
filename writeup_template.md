@@ -32,7 +32,7 @@ The goals / steps of this project are the following:
 [image16]: ./output_images/after_pipeline.png "After Pipeline"
 [image17]: ./output_images/lane_lines.png "Lane Lines Sliding Window Method"
 [image18]: ./output_images/histogram.png "Histogram"
-[image18]: ./output_images/result_img.png "result"
+[image19]: ./output_images/result_img.png "Final result"
 
 [video1]: ./out_project_video.mp4 "Video"
 
