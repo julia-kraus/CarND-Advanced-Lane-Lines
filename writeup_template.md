@@ -142,19 +142,23 @@ I combined all these preprocessing steps into the `preprocess_image` pipeline fu
 We can again see that the lane lines are visible. However, there are still many pixels activated that don't belong to the lane line. Our next steps are therefore to identify only the lane line pixels and fit a curve to the lane line.
 
 #### 4. Identifiying Lane Line Pixels
+This section is implemented in `lane_finding.py`.
 
 First of all, we want to find out, where our lines begin at the bottom of the image. Therefore, we plot a histogram in x-direction on the test images. This means, we step in x-direction over the image. At each step we count up how many pixel activations there across the lower half of the image in y-direction. Then, we plot the histogram. The histogram's two highest peaks are where the most activated pixels are, and therefore the lanes are most likely located:
 
 ![alt text][image18]
 
-Once we have found the two lane bases at the bottom of the window, we use a sliding window approach to track the lane lines to the top of the image. As first is to split the histogram into two sides, one for each lane line. Then we move a fixed size sliding window up. We determine the center of the activated pixels inside this sliding window. If there are enough activated pixels, we re-center the window. This is repeated until the top of the image, for both lanes separately. After having thus found the lane pixels for the left and right lane, we fit a second order polynomial for each of them. The result can be seen here:
+Once we have found the two lane bases at the bottom of the window, we use a sliding window approach to track the lane lines to the top of the image. As first is to split the histogram into two sides, one for each lane line. Then we move a fixed size sliding window up. We determine the center of the activated pixels inside this sliding window. If there are enough activated pixels, we re-center the window. This is repeated until the top of the image, for both lanes separately. This window search is implemented in `lane_finding.py`'s function `search_lane_from_scratch`. After having thus found the lane pixels for the left and right lane, we fit a second order polynomial for each of them. The result can be seen here:
 
 ![alt text][image17]
 
-In case of a video we don't have to do the sliding window search for each frame because subsequent frames have the lanes in similar positions. Therefore we can conduct a search from prior: 
+In case of a video we don't have to do the sliding window search for each frame because subsequent frames have the lanes in similar positions. In the next frame of video you don't need to do a blind search again, but instead you can just search in a margin around the previous line position. This strategy is implemented in the function `search_lane_from_prior`.
+
+This is equivalent to using a customized region of interest for each frame of video, and should help you track the lanes through sharp curves and tricky conditions. If you lose track of the lines, go back to your sliding windows search or other method to rediscover them.
 
 #### 5. Calculating Curvature
 
+After we identified the lane line pixels, we need to calculate the road's curvature radius. 
 
 I did this in lines # through # in my code in `my_other_file.py`
 
