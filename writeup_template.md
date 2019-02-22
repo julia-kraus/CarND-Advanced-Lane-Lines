@@ -1,8 +1,4 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
+# Advanced Lane Line Detection
 
 **Advanced Lane Finding Project**
 
@@ -19,12 +15,21 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/undistort_output.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image1]: ./output_images/undist_test_img.png "Undistorted Test Img"
+[image2]: ./output_images/orig_test_img.png "Original Distorted Test Img"
+[image4]: ./output_images/calib_example.png "Example Calibration Img"
+[image5]: ./output_images/detected_corners.png "Detected Corners Calibration Img"
+[image6]: ./output_images/undistorted_calib.png "Undistorted Calibration Img"
+[image7]: ./output_images/hls_channel.png "HLS Color Space S Channel"
+[image8]: ./output_images/hls_thresholding.png "HLS Thresholding Binary"
+[image9]: ./output_images/sobel_operator.png "Gradient Thresholding Binary"
+[image10]: ./output_images/combined_binary.png "Gradient and Color Thresholding Combined"
+[image11]: ./output_images/unwarped.png "Unwarped original image"
+[image12]: ./output_images/warped.png "Perspective Transformed image"
+[image13]: ./output_images/persp_trafo_img_before.png "Perspective Transform Source"
+[image14]: ./output_images/persp_trano_img_after.png "Perspective Transform Destination"
+[image15]: ./output_images/before_pipeline.png "Before Pipeline"
+[image16]: ./output_images/after_pipeline.png "After Pipeline"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -35,38 +40,68 @@ The goals / steps of this project are the following:
 
 ### Writeup / README
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
-
 ### Camera Calibration
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/example.ipynb" (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the first code cell of the IPython notebook located in "./examples/solution.ipynb" (or in lines 65 through 234 of the file called `preprocessing.py`).  
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+First of all, I load the calibration images that are stored in the ./camera_cal folder. These are 20 images and we can see that there are 9x6 chessboard corners. Then, I apply the opencv function `cv2.get_chessboard_corners` which finds the coordinates of the chessboard corners in the image. The result can be visualized witht he opencv function `cv2.draw_chessboard_corners`Once they are found, we need a function that maps the 2D image points to the "object points", which will be the (x, y, z) coordinates of the chessboard corners in the real world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+An example of a distorted calibration image can be seen here:
 
-![alt text][image1]
+![alt text][image4]
+
+Finding the chessboard corners:
+
+![alt text][image5]
+
+
+I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  The function returned a camera matrix `mtx` and distortion coefficients `dist`, which I saved in the folder , so I wouldn't have to calculate them every time anew. I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+
+![alt text][image6]
 
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
-
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+This is an example distorted test image:
 ![alt text][image2]
 
-#### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+Next, I applied distortion correction to all the test images. Here is one distortion corrected test image:
+![alt text][image1]
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+One can see that after the distortion correction, one can see the image more from the front.
 
-![alt text][image3]
+#### 2. Color and Gradient Thresholding
 
-#### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 125 through 200 in `preprocessing.py`).  First of all, I considered different color spaces and found that the lines were most clearly visible in the saturation channel of the HLS color space. For a comparison of different channels and color spaces, see `solution.ipynb`. The saturation channel of our example pic can be seen here:
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+![alt text][image7]
+
+Next, I applied a color threshold on this channel based on which I converted our test images to binary. Here's an example of my output for this step:
+
+![alt text][image8]
+
+In the next step, I applied a Sobel transformation in x-directions on the image. The Sobel transformation highlights pixels with steep gradients on the image and thus can help us detect the lane line pixels. Then I selected a threshold on the Sobel transform and got the following binary image: 
+
+![alt text][image9]
+
+Applying both gradient and color threshold resulted in the following test image:
+
+![alt text][image10]
+
+We can see that the lane lines are clearly visible. 
+
+#### 3. Perspective Transform.
+
+It is easier to fit a curve to the lane lines, if we can see the street from a bird's eye view. Therefore, we transformed our image into bird's eye view. The code for my perspective transform can be found in lines 202 through 222 in the file `preprocessing.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `get_perspective_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the following test image to determine the source and destination points manually:
+
+![alt text][image13]
+
+Into this picture, I fit a polygon that matches the lane lines: 
+![alt text][image14]
+
+I chose the following:
 
 ```python
 src = np.float32(
@@ -90,11 +125,20 @@ This resulted in the following source and destination points:
 | 1127, 720     | 960, 720      |
 | 695, 460      | 960, 0        |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+Then, I transformed the test images. Here is an example of an unwarped and a warped image. Before warping:
 
-![alt text][image4]
+![alt text][image11]
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+After warping:
+![alt text][image12]
+
+I combined all these preprocessing steps into the `preprocess_image` pipeline function that can be found in `preprocessing.py`, lines 223 to 234. The output of this image pipeline on our test image was:
+
+![alt text][image16]
+
+We can again see that the lane lines are visible. However, there are still many pixels activated that don't belong to the lane line. Our next steps are therefore to identify only the lane line pixels and fit a curve to the lane line.
+
+#### 4. Identifiying Lane Line Pixels
 
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
