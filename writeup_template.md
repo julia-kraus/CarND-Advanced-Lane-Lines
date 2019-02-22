@@ -19,12 +19,21 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/undistort_output.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image1]: ./output_images/undist_test_img.png "Undistorted Test Img"
+[image2]: ./output_images/orig_test_img.png "Original Distorted Test Img"
+[image4]: ./output_images/calib_example.png "Example Calibration Img"
+[image5]: ./output_images/detected_corners.png "Detected Corners Calibration Img"
+[image6]: ./output_images/undistorted_calib.png "Undistorted Calibration Img"
+[image7]: ./output_images/hls_channel.png "HLS Color Space S Channel"
+[image8]: ./output_images/hls_thresholding.png "HLS Thresholding Binary"
+[image9]: ./output_images/sobel_operator.png "Gradient Thresholding Binary"
+[image10]: ./output_images/combined_binary.png "Gradient and Color Thresholding Combined"
+[image11]: ./output_images/unwarped_png "Unwarped original image"
+[image12]: ./output_images/warped_png "Perspective Transformed image"
+[image13]: ./output_images/perspective_transform_before.png "Perspective Transform Source"
+[image14]: ./output_images/perspective_transform_after.png "Perspective Transform Destination"
+[image15]: ./output_images/before_pipeline.png "Before Pipeline"
+[image16]: ./output_images/after_pipeline.png "After Pipeline"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -43,16 +52,29 @@ The code for this step is contained in the first code cell of the IPython notebo
 
 First of all, I load the calibration images that are stored in the ./camera_cal folder. These are 20 images and we can see that there are 9x6 chessboard corners. Then, I apply the opencv function `cv2.get_chessboard_corners` which finds the coordinates of the chessboard corners in the image. The result can be visualized witht he opencv function `cv2.draw_chessboard_corners`Once they are found, we need a function that maps the 2D image points to the "object points", which will be the (x, y, z) coordinates of the chessboard corners in the real world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.
 
+An example of a distorted calibration image can be seen here:
+
+![alt text][image4]
+
+Finding the chessboard corners:
+
+![alt text][image5]
+
+
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  The function returned a camera matrix `mtx` and distortion coefficients `dist`, which I saved in the folder , so I wouldn't have to calculate them every time anew. I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
 
-![alt text][image1]
+![alt text][image6]
 
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
+This is an example distorted test image:
+![alt text][image2]
 
 Next, I applied distortion correction to all the test images. Here is one distortion corrected test image:
-![alt text][image2]
+![alt text][image1]
+
+One can see that after the distortion correction, one can see the image more from the front.
 
 #### 2. Color and Gradient Thresholding
 
