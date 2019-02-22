@@ -78,9 +78,23 @@ One can see that after the distortion correction, one can see the image more fro
 
 #### 2. Color and Gradient Thresholding
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `preprocessing.py`).  First of all, I considered different color spaces and found that the lines were most clearly visible in the saturation channel of the HLS color space. For a comparison of different channels and color spaces, see `solution.ipynb`. The saturation channel of our example pic can be seen here:
 
-![alt text][image3]
+![alt text][image7]
+
+Next, I applied a color threshold on this channel based on which I converted our test images to binary. Here's an example of my output for this step:
+
+![alt text][image8]
+
+In the next step, I applied a Sobel transformation in x-directions on the image. The Sobel transformation highlights pixels with steep gradients on the image and thus can help us detect the lane line pixels. Then I selected a threshold on the Sobel transform and got the following binary image: 
+
+![alt text][image9]
+
+Applying both gradient and color threshold resulted in the following test image:
+
+![alt text][image10]
+
+We can see that the lane lines are clearly visible. 
 
 #### 3. Perspective Transform.
 
