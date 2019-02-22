@@ -30,6 +30,9 @@ The goals / steps of this project are the following:
 [image14]: ./output_images/persp_trano_img_after.png "Perspective Transform Destination"
 [image15]: ./output_images/before_pipeline.png "Before Pipeline"
 [image16]: ./output_images/after_pipeline.png "After Pipeline"
+[image17]: ./output_images/lane_lines.png "Lane Lines Sliding Window Method"
+[image18]: ./output_images/histogram.png "Histogram"
+
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -140,11 +143,18 @@ We can again see that the lane lines are visible. However, there are still many 
 
 #### 4. Identifiying Lane Line Pixels
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+First of all, we want to find out, where our lines begin at the bottom of the image. Therefore, we plot a histogram in x-direction on the test images. This means, we step in x-direction over the image. At each step we count up how many pixel activations there across the lower half of the image in y-direction. Then, we plot the histogram. The histogram's two highest peaks are where the most activated pixels are, and therefore the lanes are most likely located:
 
-![alt text][image5]
+![alt text][image18]
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+Once we have found the two lane bases at the bottom of the window, we use a sliding window approach to track the lane lines to the top of the image. As first is to split the histogram into two sides, one for each lane line. Then we move a fixed size sliding window up. We determine the center of the activated pixels inside this sliding window. If there are enough activated pixels, we re-center the window. This is repeated until the top of the image, for both lanes separately. After having thus found the lane pixels for the left and right lane, we fit a second order polynomial for each of them. The result can be seen here:
+
+![alt text][image17]
+
+In case of a video we don't have to do the sliding window search for each frame because subsequent frames have the lanes in similar positions. Therefore we can conduct a search from prior: 
+
+#### 5. Calculating Curvature
+
 
 I did this in lines # through # in my code in `my_other_file.py`
 
