@@ -32,6 +32,7 @@ The goals / steps of this project are the following:
 [image16]: ./output_images/after_pipeline.png "After Pipeline"
 [image17]: ./output_images/lane_lines.png "Lane Lines Sliding Window Method"
 [image18]: ./output_images/histogram.png "Histogram"
+[image18]: ./output_images/result.png "result"
 
 [video1]: ./project_video.mp4 "Video"
 
@@ -154,22 +155,24 @@ Once we have found the two lane bases at the bottom of the window, we use a slid
 
 In case of a video we don't have to do the sliding window search for each frame because subsequent frames have the lanes in similar positions. In the next frame of video you don't need to do a blind search again, but instead you can just search in a margin around the previous line position. This strategy is implemented in the function `search_lane_from_prior`.
 
-This is equivalent to using a customized region of interest for each frame of video, and should help you track the lanes through sharp curves and tricky conditions. If you lose track of the lines, go back to your sliding windows search or other method to rediscover them.
+This is equivalent to using a customized region of interest for each frame of video, and should help you track the lanes through sharp curves and tricky conditions. If you lose track of the lines, go back to your sliding windows search or other method to rediscover them. Further, make the algortihm more stable, the fitted polynomials were averaged over the last three detected polynomials.
 
 #### 5. Calculating Curvature
 
-After we identified the lane line pixels, we need to calculate the road's curvature radius. We can calculate the radius of curvature directly from the polynomials that we fitted to the lane lines with the equation `((1 + (2 * A * y + B) ** 2) ** 1.5) / abs(2 * A)`. However, we still need to convert the result from pixels to meters. This was done using the conversion
+After we identified the lane line pixels, we need to calculate the road's curvature radius. We can calculate the radius of curvature directly from the polynomials that we fitted to the lane lines with the equation `((1 + (2 * A * y + B) ** 2) ** 1.5) / abs(2 * A)`. However, we still need to convert the result from pixels to meters. This was done assuming the road is 30m long and 3.7m wide, using the conversion
 
-`ym_per_pix = 30/720 # meters per pixel in y dimension`
+`ym_per_pix = 30/720 # meters per pixel in y dimension` and
+
 `xm_per_pix = 3.7/700 # meters per pixel in x dimension`
 
-I did this in lines # through # in my code in `my_other_file.py`
+I did this in lines # through # in my code in the function `get_curvature_real`.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+In the last step, I calculated the car's position from the curvature. Therefore, I determined the leftmost and rightmost lane pixel. The lane center thus is the average over the left and right pixel. 
+Then I calculated how far the lane center is apart from the image center in pixels. Again the same pixel-to-meter conversion as above was applied to obtain the distance in meters. 
 
-![alt text][image6]
+![alt text][image19]
 
 ---
 
