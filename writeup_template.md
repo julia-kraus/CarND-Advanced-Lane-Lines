@@ -1,8 +1,4 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
+# Advanced Lane Line Detection
 
 **Advanced Lane Finding Project**
 
@@ -98,7 +94,14 @@ We can see that the lane lines are clearly visible.
 
 #### 3. Perspective Transform.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `lane_finding.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the following test imag to determine the source and destination points manually. I chose the following:
+It is easier to fit a curve to the lane lines, if we can see the street from a bird's eye view. Therefore, we transformed our image into bird's eye view. The code for my perspective transform can be found in lines 1 through 8 in the file `lane_finding.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `get_perspective_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the following test image to determine the source and destination points manually:
+
+![alt text][image13]
+
+Into this picture, I fit a polygon that matches the lane lines: 
+![alt text][image13]
+
+I chose the following:
 
 ```python
 src = np.float32(
@@ -122,9 +125,12 @@ This resulted in the following source and destination points:
 | 1127, 720     | 960, 720      |
 | 695, 460      | 960, 0        |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image. Here is an example of an unwarped and a warped image.
+Then, I transformed the test images. Here is an example of an unwarped and a warped image. Before warping
 
-![alt text][image4]
+![alt text][image11]
+
+After warping
+![alt text][image12]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
