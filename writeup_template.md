@@ -148,7 +148,7 @@ First of all, we want to find out, where our lines begin at the bottom of the im
 
 ![alt text][image18]
 
-Once we have found the two lane bases at the bottom of the window, we use a sliding window approach to track the lane lines to the top of the image. As first is to split the histogram into two sides, one for each lane line. Then we move a fixed size sliding window up. We determine the center of the activated pixels inside this sliding window. If there are enough activated pixels, we re-center the window. This is repeated until the top of the image, for both lanes separately. This window search is implemented in `lane_finding.py`'s function `search_lane_from_scratch`. After having thus found the lane pixels for the left and right lane, we fit a second order polynomial for each of them. The result can be seen here:
+Once we have found the two lane bases at the bottom of the window, we use a sliding window approach to track the lane lines to the top of the image. As first is to split the histogram into two sides, one for each lane line. Then we move a fixed size sliding window up. We determine the center of the activated pixels inside this sliding window. If there are enough activated pixels, we re-center the window. This is repeated until the top of the image, for both lanes separately. This window search is implemented in `lane_finding.py`'s function `search_lane_from_scratch`. After having thus found the lane pixels for the left and right lane, we fit a second order polynomial (of form `A * y**2 + B*y + C`) for each of them. The result can be seen here:
 
 ![alt text][image17]
 
@@ -158,7 +158,10 @@ This is equivalent to using a customized region of interest for each frame of vi
 
 #### 5. Calculating Curvature
 
-After we identified the lane line pixels, we need to calculate the road's curvature radius. 
+After we identified the lane line pixels, we need to calculate the road's curvature radius. We can calculate the radius of curvature directly from the polynomials that we fitted to the lane lines with the equation `((1 + (2 * A * y + B) ** 2) ** 1.5) / abs(2 * A)`. However, we still need to convert the result from pixels to meters. This was done using the conversion
+
+`ym_per_pix = 30/720 # meters per pixel in y dimension`
+`xm_per_pix = 3.7/700 # meters per pixel in x dimension`
 
 I did this in lines # through # in my code in `my_other_file.py`
 
