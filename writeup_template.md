@@ -99,7 +99,7 @@ It is easier to fit a curve to the lane lines, if we can see the street from a b
 ![alt text][image13]
 
 Into this picture, I fit a polygon that matches the lane lines: 
-![alt text][image13]
+![alt text][image14]
 
 I chose the following:
 
@@ -125,12 +125,18 @@ This resulted in the following source and destination points:
 | 1127, 720     | 960, 720      |
 | 695, 460      | 960, 0        |
 
-Then, I transformed the test images. Here is an example of an unwarped and a warped image. Before warping
+Then, I transformed the test images. Here is an example of an unwarped and a warped image. Before warping:
 
 ![alt text][image11]
 
-After warping
+After warping:
 ![alt text][image12]
+
+I combined all these preprocessing steps into the `preprocess_image` pipeline function that can be found in `preprocessing.py`. The output of this image pipeline on our test image was:
+
+![alt text][image16]
+
+We can again see that the lane lines are visible. However, there are still many pixels activated that don't belong to the lane line. Our next steps are therefore to identify only the lane line pixels and fit a curve to the lane line.
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
